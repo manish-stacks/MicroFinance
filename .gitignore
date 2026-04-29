@@ -5,4 +5,4 @@ node_modules/
 public/uploads/*
 !public/uploads/.gitkeep
 .vercel
-.env*.local
+.env.local
