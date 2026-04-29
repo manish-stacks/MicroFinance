@@ -1,5 +1,4 @@
 'use client';
-// src/components/forms/LoanFormModal.tsx
 import { useState, useEffect } from 'react';
 import { loansApi, partiesApi } from '@/lib/api';
 import { X, Calculator } from 'lucide-react';
