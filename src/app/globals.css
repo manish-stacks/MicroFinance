@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@layer base {
+  :root {
+    --background: 220 25% 97%;
+    --foreground: 220 30% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 30% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 30% 10%;
+    --primary: 215 70% 28%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 215 25% 93%;
+    --secondary-foreground: 215 70% 28%;
+    --muted: 220 15% 94%;
+    --muted-foreground: 220 15% 50%;
+    --accent: 215 55% 92%;
+    --accent-foreground: 215 70% 28%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 15% 88%;
+    --input: 220 15% 88%;
+    --ring: 215 70% 28%;
+    --radius: 0.6rem;
+  }
+
+  .dark {
+    --background: 220 30% 8%;
+    --foreground: 220 15% 92%;
+    --card: 220 28% 12%;
+    --card-foreground: 220 15% 92%;
+    --popover: 220 28% 12%;
+    --popover-foreground: 220 15% 92%;
+    --primary: 215 65% 60%;
+    --primary-foreground: 220 30% 8%;
+    --secondary: 220 25% 18%;
+    --secondary-foreground: 220 15% 92%;
+    --muted: 220 25% 16%;
+    --muted-foreground: 220 15% 55%;
+    --accent: 220 25% 20%;
+    --accent-foreground: 220 15% 92%;
+    --destructive: 0 62% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 20% 20%;
+    --input: 220 20% 20%;
+    --ring: 215 65% 60%;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { @apply bg-muted; }
+::-webkit-scrollbar-thumb { @apply bg-border rounded-full; }
+::-webkit-scrollbar-thumb:hover { @apply bg-muted-foreground; }
+
+/* Sidebar */
+.sidebar-item {
+  @apply flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 text-muted-foreground hover:text-foreground hover:bg-accent cursor-pointer;
+}
+.sidebar-item.active {
+  @apply bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground shadow-sm;
+}
+
+/* Stats cards */
+.stat-card {
+  @apply bg-card rounded-xl border p-5 shadow-sm hover:shadow-md transition-shadow duration-200;
+}
+
+/* Status badges */
+.badge-active { @apply bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400; }
+.badge-overdue { @apply bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400; }
+.badge-pending { @apply bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400; }
+.badge-paid { @apply bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400; }
+.badge-closed { @apply bg-gray-100 text-gray-600 dark:bg-gray-900/30 dark:text-gray-400; }
+
+/* Table */
+.data-table {
+  @apply w-full text-sm;
+}
+.data-table th {
+  @apply text-left font-semibold text-muted-foreground px-4 py-3 bg-muted/50 border-b;
+}
+.data-table td {
+  @apply px-4 py-3 border-b border-border/50;
+}
+.data-table tr:last-child td { @apply border-b-0; }
+.data-table tr:hover td { @apply bg-accent/30; }
+
+/* Form */
+.form-label {
+  @apply text-sm font-medium text-foreground/80 mb-1.5 block;
+}
+
+/* Animations */
+@keyframes slide-in {
+  from { transform: translateX(-10px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fade-up {
+  from { transform: translateY(8px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-slide-in { animation: slide-in 0.2s ease-out; }
+.animate-fade-up { animation: fade-up 0.25s ease-out; }
+
+/* Currency display */
+.currency {
+  font-family: 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}

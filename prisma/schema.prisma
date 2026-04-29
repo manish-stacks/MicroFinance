@@ -1,0 +1,213 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  SUB_ADMIN
+  AGENT
+  USER
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum LoanType {
+  SIMPLE
+  MONTHLY_INTEREST
+  RECURRING
+}
+
+enum InstallmentType {
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+enum LoanStatus {
+  ACTIVE
+  CLOSED
+  OVERDUE
+  PENDING
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  OVERDUE
+  PARTIAL
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  password      String
+  role          Role      @default(USER)
+  isActive      Boolean   @default(true)
+  profileImage  String?
+  phone         String?
+  agentCode     String?   @unique
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  assignedParties Party[] @relation("AgentParties")
+  collections   Payment[] @relation("AgentPayments")
+  auditLogs     AuditLog[]
+  @@map("users")
+}
+
+model Party {
+  id              String    @id @default(cuid())
+  partyCode       String    @unique
+  customerId      String    @unique
+  name            String
+  fatherName      String?
+  mobile1         String
+  mobile2         String?
+  email           String?
+  gender          Gender?
+  birthdate       DateTime?
+  profileImage    String?
+  idProofType     String?
+  idProofNumber   String?
+  idProofImage    String?
+  addressProofType  String?
+  addressProofNumber String?
+  addressProofImage  String?
+  area            String?
+  city            String?
+  state           String?
+  pincode         String?
+  pan             String?
+  aadhaar         String?
+  voterId         String?
+  occupation      String?
+  loanLimit       Decimal   @default(0) @db.Decimal(15,2)
+  balance         Decimal   @default(0) @db.Decimal(15,2)
+  remarks         String?   @db.Text
+  agentId         String?
+  agent           User?     @relation("AgentParties", fields: [agentId], references: [id])
+  guarantor1Name      String?
+  guarantor1Mobile    String?
+  guarantor1Relation  String?
+  guarantor1Address   String?
+  guarantor1Pan       String?
+  guarantor1Aadhaar   String?
+  guarantor1VoterId   String?
+  guarantor2Name      String?
+  guarantor2Mobile    String?
+  guarantor2Relation  String?
+  guarantor2Address   String?
+  guarantor2Pan       String?
+  guarantor2Aadhaar   String?
+  guarantor2VoterId   String?
+  bankName            String?
+  bankIfsc            String?
+  bankAccountNo       String?
+  bankAccountHolder   String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  loans           Loan[]
+  @@map("parties")
+}
+
+model Loan {
+  id                String          @id @default(cuid())
+  loanNumber        String          @unique
+  loanType          LoanType
+  status            LoanStatus      @default(ACTIVE)
+  partyId           String
+  party             Party           @relation(fields: [partyId], references: [id])
+  agentId           String?
+  loanAmount        Decimal         @db.Decimal(15,2)
+  startDate         DateTime
+  endDate           DateTime?
+  fileCharges       Decimal         @default(0) @db.Decimal(15,2)
+  remarks           String?         @db.Text
+  purpose           String?
+  witnessName       String?
+  witnessAddress    String?
+  installmentType   InstallmentType?
+  installmentAmount Decimal?        @db.Decimal(15,2)
+  totalInstallments Int?
+  lateFine          Decimal         @default(0) @db.Decimal(15,2)
+  totalPayable      Decimal?        @db.Decimal(15,2)
+  monthlyInterest   Decimal?        @db.Decimal(15,2)
+  depositAmount     Decimal?        @db.Decimal(15,2)
+  returnPercent     Decimal?        @db.Decimal(5,2)
+  maturityAmount    Decimal?        @db.Decimal(15,2)
+  totalPaid         Decimal         @default(0) @db.Decimal(15,2)
+  pendingAmount     Decimal?        @db.Decimal(15,2)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  installments      LoanInstallment[]
+  payments          Payment[]
+  @@map("loans")
+}
+
+model LoanInstallment {
+  id              String        @id @default(cuid())
+  loanId          String
+  loan            Loan          @relation(fields: [loanId], references: [id])
+  installmentNo   Int
+  dueDate         DateTime
+  amount          Decimal       @db.Decimal(15,2)
+  status          PaymentStatus @default(PENDING)
+  paidAmount      Decimal       @default(0) @db.Decimal(15,2)
+  fineAmount      Decimal       @default(0) @db.Decimal(15,2)
+  paidDate        DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  payments        Payment[]
+  @@map("loan_installments")
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  receiptNumber   String        @unique
+  loanId          String
+  loan            Loan          @relation(fields: [loanId], references: [id])
+  installmentId   String?
+  installment     LoanInstallment? @relation(fields: [installmentId], references: [id])
+  agentId         String?
+  agent           User?         @relation("AgentPayments", fields: [agentId], references: [id])
+  amount          Decimal       @db.Decimal(15,2)
+  fineAmount      Decimal       @default(0) @db.Decimal(15,2)
+  totalAmount     Decimal       @db.Decimal(15,2)
+  paymentDate     DateTime      @default(now())
+  paymentMode     String        @default("CASH")
+  notes           String?       @db.Text
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  @@map("payments")
+}
+
+model AuditLog {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  action      String
+  entity      String
+  entityId    String?
+  details     Json?
+  createdAt   DateTime  @default(now())
+  @@map("audit_logs")
+}
+
+model SystemSettings {
+  id          String    @id @default(cuid())
+  key         String    @unique
+  value       String    @db.Text
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  @@map("system_settings")
+}
